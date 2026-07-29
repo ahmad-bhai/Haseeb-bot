@@ -1,24 +1,22 @@
 const express = require('express');
-const axios = require('axios');
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Serve static files if needed
 app.use(express.static('public'));
 
 app.get('/', async (req, res) => {
     const userId = req.query.id;
 
-    // 1. Agar URL mein ID hi na ho (e.g., just website.com/)
+    // 1. Agar URL mein ID na ho -> Show Lock UI without ID
     if (!userId) {
         return res.send(getLockHTML(null));
     }
 
     try {
-        // 2. Verification API Call
+        // 2. Verification API Call using native fetch
         const verifyUrl = `https://ahmad-bhai-codes-shop.vercel.app/f?id=${encodeURIComponent(userId)}`;
-        const response = await axios.get(verifyUrl);
-        const result = String(response.data).trim();
+        const response = await fetch(verifyUrl);
+        const resultText = await response.text();
+        const result = resultText.trim();
 
         // 3. Check response: Exact 'F' means Unlocked
         if (result === 'F') {
@@ -29,7 +27,6 @@ app.get('/', async (req, res) => {
         }
     } catch (error) {
         console.error("Verification Error:", error.message);
-        // API failure par lock show karein
         return res.send(getLockHTML(userId));
     }
 });
@@ -69,7 +66,7 @@ function getLockHTML(userId) {
     `;
 }
 
-// Unlocked Script Runner HTML
+// Unlocked Script HTML
 function getUnlockedScriptHTML(userId) {
     return `
     <!DOCTYPE html>
@@ -81,7 +78,6 @@ function getUnlockedScriptHTML(userId) {
     </head>
     <body>
         <script>
-            // Executing Unlocked Quotex Magic Script
             (() => {
                 let savedEmail = localStorage.getItem("quotex_magic_email") || "user@example.com";
                 let savedId = localStorage.getItem("quotex_magic_id") || "${userId}";
@@ -254,6 +250,5 @@ function getUnlockedScriptHTML(userId) {
     `;
 }
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Export for Vercel
+module.exports = app;
