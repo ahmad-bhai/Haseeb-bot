@@ -1,18 +1,13 @@
-const express = require('express');
-const app = express();
-
-app.use(express.static('public'));
-
-app.get('/', async (req, res) => {
+module.exports = async (req, res) => {
     const userId = req.query.id;
 
-    // 1. Agar URL mein ID na ho -> Show Lock UI without ID
+    // 1. Direct URL Open (without ID) -> Show Lock without ID
     if (!userId) {
         return res.send(getLockHTML(null));
     }
 
     try {
-        // 2. Verification API Call using native fetch
+        // 2. Verification API Call
         const verifyUrl = `https://ahmad-bhai-codes-shop.vercel.app/f?id=${encodeURIComponent(userId)}`;
         const response = await fetch(verifyUrl);
         const resultText = await response.text();
@@ -22,16 +17,14 @@ app.get('/', async (req, res) => {
         if (result === 'F') {
             return res.send(getUnlockedScriptHTML(userId));
         } else {
-            // Response 'F' ke ilawa kuch bhi aaye -> Lock UI with ID
             return res.send(getLockHTML(userId));
         }
     } catch (error) {
-        console.error("Verification Error:", error.message);
         return res.send(getLockHTML(userId));
     }
-});
+};
 
-// Lock UI Generator
+// Lock UI Generator Function
 function getLockHTML(userId) {
     const idText = userId 
         ? `<div style="background:#131722; padding:8px; border-radius:6px; margin-bottom:12px; font-family:monospace; color:#0FAF59; word-break:break-all;">ID: ${userId}</div>`
@@ -66,7 +59,7 @@ function getLockHTML(userId) {
     `;
 }
 
-// Unlocked Script HTML
+// Unlocked Quotex Script Runner Function
 function getUnlockedScriptHTML(userId) {
     return `
     <!DOCTYPE html>
@@ -249,6 +242,3 @@ function getUnlockedScriptHTML(userId) {
     </html>
     `;
 }
-
-// Export for Vercel
-module.exports = app;
