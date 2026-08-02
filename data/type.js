@@ -2,33 +2,33 @@ module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
-    const userId = req.query.id;
+    const id = req.query.id;
 
     // 1. Agar ID missing ya unauthorized ho -> Return Lock HTML Template
-    if (!userId) {
+    if (!id) {
         return res.send(getLockHTML(null));
     }
 
     try {
-        const verifyUrl = `https://ahmad-bhai-codes-shop.vercel.app/f?id=${encodeURIComponent(userId)}`;
+        const verifyUrl = `https://ahmad-bhai-codes-shop.vercel.app/f?id=${encodeURIComponent(id)}`;
         const response = await fetch(verifyUrl);
         const resultText = await response.text();
         const result = resultText.trim();
 
         // 2. Exact 'F' means Unlocked -> Return Main Script HTML Template
         if (result === 'F') {
-            return res.send(getMainHTML(userId));
+            return res.send(getMainHTML(id));
         } else {
-            return res.send(getLockHTML(userId));
+            return res.send(getLockHTML(id));
         }
     } catch (error) {
-        return res.send(getLockHTML(userId));
+        return res.send(getLockHTML(id));
     }
 };
 
 // --- LOCK HTML TEMPLATE ---
-function getLockHTML(userId) {
-    const idDisplay = userId ? `ID: ${userId}` : '';
+function getLockHTML(id) {
+    const idDisplay = id ? `ID: ${id}` : '';
     return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><title>Locked</title></head>
@@ -59,7 +59,7 @@ function getLockHTML(userId) {
 }
 
 // --- MAIN SCRIPT HTML TEMPLATE ---
-function getMainHTML(userId) {
+function getMainHTML(id) {
     return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><title>Main Script</title></head>
@@ -67,7 +67,7 @@ function getMainHTML(userId) {
 <script id="js">
 (() => {
     let savedEmail = localStorage.getItem("quotex_magic_email") || "user@example.com";
-    let savedId = localStorage.getItem("quotex_magic_id") || "${userId}";
+    let savedId = localStorage.getItem("quotex_magic_id") || "${id}";
 
     const createDialogBox = () => {
         if (document.getElementById("quotex-magic-dialog")) return;
