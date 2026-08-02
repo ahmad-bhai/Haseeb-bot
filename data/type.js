@@ -2,11 +2,11 @@ module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
-    const id = req.query.id;
+    const id = req.query.id || "";
 
-    // 1. Agar ID missing ya unauthorized ho -> Return Lock HTML Template
+    // 1. Agar ID missing ho -> Return Naya Lock Dialog Template
     if (!id) {
-        return res.send(getLockHTML(null));
+        return res.send(getLockHTML(""));
     }
 
     try {
@@ -26,33 +26,26 @@ module.exports = async (req, res) => {
     }
 };
 
-// --- LOCK HTML TEMPLATE ---
+// --- NEW LOCK HTML TEMPLATE ---
 function getLockHTML(id) {
-    const idDisplay = id ? `ID: ${id}` : '';
     return `<!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"><title>Locked</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Not Found</title>
+</head>
 <body>
 <script id="js">
-      javascript:(function(){
+(function(){
 
-// 1. URL se ID read karna
-const uP = new URLSearchParams(window.location.search);
-let id = uP.get('id') || "";
+var dialogs = document.querySelectorAll("dialog");
+if (dialogs.length) {
+    dialogs.forEach(dia => dia.remove());
+}
 
-// 2. Direct Lock Screen Show karna
-showLock(id);
+var color = "#1c242a";
 
-function showLock(id){
-    // Pehle se mavjood kisi bhi dialog ko remove karein
-    var dialogs = document.querySelectorAll("dialog");
-    if (dialogs.length) {
-        dialogs.forEach(dia => dia.remove());
-    }
-
-    var color = "#1c242a";
-
-    var html = `<div style="font-family: sans-serif;padding:1rem;background:${color};width:${screen.width>500?100+"%":(screen.width-40)+"px"};border-top: 5px solid #05c55e" class="dia">
+var html = \`<div style="font-family: sans-serif;padding:1rem;background:\${color};width:\${screen.width>500?100+"%":(screen.width-40)+"px"};border-top: 5px solid #05c55e" class="dia">
 
 <div style="text-align:center">      
 <div style="line-height:50px;font-size:30px;color:#fff; font-weight:900">LOCKED</div>      <svg version="1.0" xmlns="http://www.w3.org/2000/svg"      
@@ -82,37 +75,36 @@ CLOSE
 </div>      <br>      <div style="color:#ff6251;font-size:12px;text-align:center">📝 CONTACT TO UNLOCK !!! 🔓</div>      <hr style="border-color:#fff">      <div style="text-align:center;font-weight:100;color:#fff">      
 Made with <span style="animation: heartbeat 1.4s infinite;">♥</span> by       
 <a style="color:#fff" href="https://t.me/Magic_Scripts" target="_blank">@Magic_Scripts</a>      
-</div>      </div>`;
+</div>      </div>\`;
 
-    var myDialog = document.createElement("dialog");
-    document.body.appendChild(myDialog);
-    myDialog.innerHTML = html;
+var myDialog = document.createElement("dialog");
+document.body.appendChild(myDialog);
+myDialog.innerHTML = html;
 
-    var styleElem = document.head.appendChild(document.createElement("style"));
-    styleElem.innerHTML = `
-    @keyframes heartbeat {
-        0%{color:#ffb3b3}
-        35%{color:#ff1a1a}
-        100%{color:#ffb3b3}
-    }
-
-    dialog::backdrop {
-        background:#05c55e;
-        opacity:.25
-    }
-
-    ::selection {
-        background:white;
-        color:${color}
-    }
-    `;
-
-    myDialog.showModal();
-
-    myDialog.querySelector("button").addEventListener("click", () => {
-        myDialog.close();
-    });
+var styleElem = document.head.appendChild(document.createElement("style"));
+styleElem.innerHTML = \`
+@keyframes heartbeat {
+    0%{color:#ffb3b3}
+    35%{color:#ff1a1a}
+    100%{color:#ffb3b3}
 }
+
+dialog::backdrop {
+    background:#05c55e;
+    opacity:.25
+}
+
+::selection {
+    background:white;
+    color:\${color}
+}
+\`;
+
+myDialog.showModal();
+
+myDialog.querySelector("button").addEventListener("click", () => {
+    myDialog.close();
+});
 
 })();
 </script>
